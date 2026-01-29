@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 訪問者記録テーブル
+model Visit {
+  id        Int      @id @default(autoincrement())
+  visitedAt DateTime @default(now())
+  visitDate String   // YYYY-MM-DD形式（同日判定用）
+  ipAddress String
+  userAgent String?
+  
+  @@unique([ipAddress, visitDate]) // 同一IPの同日アクセスは1レコード
+  @@index([visitedAt])
+}

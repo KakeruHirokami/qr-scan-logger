@@ -1,65 +1,192 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
+interface ChartData {
+  date: string;
+  visits: number;
+}
+
+interface Stats {
+  totalCount: number;
+  chartData: ChartData[];
+}
 
 export default function Home() {
+  const [visitorNumber, setVisitorNumber] = useState<number | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const recordVisit = async () => {
+      // セッションで既に記録済みかチェック
+      const recorded = sessionStorage.getItem("visit_recorded");
+      if (recorded) {
+        // 統計情報のみ取得
+        const statsRes = await fetch("/api/visit");
+        const statsData = await statsRes.json();
+        setVisitorNumber(parseInt(recorded));
+        setStats(statsData);
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        // 訪問を記録
+        const visitRes = await fetch("/api/visit", { method: "POST" });
+        const visitData = await visitRes.json();
+        setVisitorNumber(visitData.visitorNumber);
+        sessionStorage.setItem("visit_recorded", visitData.visitorNumber.toString());
+
+        // 統計情報を取得
+        const statsRes = await fetch("/api/visit");
+        const statsData = await statsRes.json();
+        setStats(statsData);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    recordVisit();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-purple-200 text-lg font-medium tracking-wide">読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* 背景の装飾 */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-500/10 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
+        {/* メインカード */}
+        <div className="w-full max-w-2xl">
+          {/* 訪問者番号 */}
+          <div className="text-center mb-12 animate-fade-in">
+            <p className="text-purple-300 text-lg md:text-xl font-medium mb-4 tracking-widest uppercase">
+              Welcome
+            </p>
+            <h1 className="text-white text-4xl md:text-6xl font-bold mb-6 leading-tight">
+              あなたは
+              <span className="block mt-2">
+                <span className="inline-block bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent text-6xl md:text-8xl font-black tabular-nums">
+                  {visitorNumber?.toLocaleString()}
+                </span>
+                <span className="text-3xl md:text-5xl ml-2">人目</span>
+              </span>
+              <span className="block mt-2">の訪問者です</span>
+            </h1>
+            <p className="text-purple-200/60 text-sm md:text-base">
+              QRコードをスキャンしていただきありがとうございます
+            </p>
+          </div>
+
+          {/* 統計カード */}
+          {stats && (
+            <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6 md:p-8 shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-white text-xl font-semibold">
+                  📊 過去7日間の訪問統計
+                </h2>
+                <div className="text-right">
+                  <p className="text-purple-300 text-sm">累計訪問者数</p>
+                  <p className="text-white text-2xl font-bold">
+                    {stats.totalCount.toLocaleString()}
+                    <span className="text-purple-300 text-sm ml-1">人</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fill: "#a78bfa", fontSize: 12 }}
+                      axisLine={{ stroke: "rgba(255,255,255,0.2)" }}
+                      tickLine={{ stroke: "rgba(255,255,255,0.2)" }}
+                    />
+                    <YAxis
+                      tick={{ fill: "#a78bfa", fontSize: 12 }}
+                      axisLine={{ stroke: "rgba(255,255,255,0.2)" }}
+                      tickLine={{ stroke: "rgba(255,255,255,0.2)" }}
+                      allowDecimals={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "rgba(15, 23, 42, 0.95)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: "12px",
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+                      }}
+                      labelStyle={{ color: "#e9d5ff", fontWeight: "bold" }}
+                      itemStyle={{ color: "#c4b5fd" }}
+                      formatter={(value: number) => [`${value}人`, "訪問者数"]}
+                    />
+                    <Bar
+                      dataKey="visits"
+                      fill="url(#colorGradient)"
+                      radius={[8, 8, 0, 0]}
+                      maxBarSize={60}
+                    />
+                    <defs>
+                      <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#a78bfa" />
+                        <stop offset="100%" stopColor="#6366f1" />
+                      </linearGradient>
+                    </defs>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
+          {/* フッター */}
+          <p className="text-center text-purple-300/40 text-xs mt-8">
+            Powered by QR Scan Logger
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+
+      <style jsx>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.8s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }
