@@ -145,7 +145,7 @@ export default function Home() {
                       }}
                       labelStyle={{ color: "#e9d5ff", fontWeight: "bold" }}
                       itemStyle={{ color: "#c4b5fd" }}
-                      formatter={(value: number) => [`${value}人`, "訪問者数"]}
+                      formatter={(value) => [`${value ?? 0}人`, "訪問者数"]}
                     />
                     <Bar
                       dataKey="visits"
