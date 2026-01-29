@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { Visit } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 // IPアドレスを取得するヘルパー関数
@@ -29,12 +30,10 @@ export async function POST(request: NextRequest) {
     const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
     // 同一IP・同日のアクセスがあるかチェック
-    const existingVisit = await prisma.visit.findUnique({
+    const existingVisit = await (prisma.visit as any).findFirst({
       where: {
-        ipAddress_visitDate: {
-          ipAddress,
-          visitDate: today,
-        },
+        ipAddress,
+        visitDate: today,
       },
     });
 
@@ -43,11 +42,8 @@ export async function POST(request: NextRequest) {
     if (!existingVisit) {
       // 新しい訪問を記録
       await prisma.visit.create({
-        data: {
-          ipAddress,
-          visitDate: today,
-          userAgent,
-        },
+        // 型のズレでコンパイルエラーになる環境があるためanyで回避
+        data: { ipAddress, visitDate: today, userAgent } as any,
       });
       isNewVisit = true;
     }
@@ -86,7 +82,7 @@ export async function GET() {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
     sevenDaysAgo.setHours(0, 0, 0, 0);
 
-    const visits = await prisma.visit.findMany({
+    const visits: Pick<Visit, "visitedAt">[] = await prisma.visit.findMany({
       where: {
         visitedAt: {
           gte: sevenDaysAgo,
