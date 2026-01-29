@@ -34,8 +34,8 @@ export default function Home() {
         // 統計情報のみ取得
         const statsRes = await fetch("/api/visit");
         const statsData = await statsRes.json();
-        setVisitorNumber(parseInt(recorded));
         setStats(statsData);
+        setVisitorNumber(statsData.totalCount);
         setIsLoading(false);
         return;
       }
@@ -44,13 +44,14 @@ export default function Home() {
         // 訪問を記録
         const visitRes = await fetch("/api/visit", { method: "POST" });
         const visitData = await visitRes.json();
-        setVisitorNumber(visitData.visitorNumber);
-        sessionStorage.setItem("visit_recorded", visitData.visitorNumber.toString());
+        // 訪問フラグをセット（何人目かの古い値を保存しない）
+        sessionStorage.setItem("visit_recorded", "true");
 
-        // 統計情報を取得
+        // 統計情報を取得し、最新の総数を表示
         const statsRes = await fetch("/api/visit");
         const statsData = await statsRes.json();
         setStats(statsData);
+        setVisitorNumber(statsData.totalCount);
       } catch (error) {
         console.error("Error:", error);
       } finally {
