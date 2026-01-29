@@ -63,22 +63,22 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-sky-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-purple-200 text-lg font-medium tracking-wide">読み込み中...</p>
+          <div className="w-16 h-16 border-4 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sky-200 text-lg font-medium tracking-wide">読み込み中...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-sky-900 to-slate-900 relative overflow-hidden">
       {/* 背景の装飾 */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-500/10 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-sky-500/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-sky-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl" />
       </div>
 
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
@@ -86,21 +86,24 @@ export default function Home() {
         <div className="w-full max-w-2xl">
           {/* 訪問者番号 */}
           <div className="text-center mb-12 animate-fade-in">
-            <p className="text-purple-300 text-lg md:text-xl font-medium mb-4 tracking-widest uppercase">
+            <p className="text-sky-300 text-lg md:text-xl font-medium mb-4 tracking-widest uppercase">
               Welcome
             </p>
             <h1 className="text-white text-4xl md:text-6xl font-bold mb-6 leading-tight">
               あなたは
               <span className="block mt-2">
-                <span className="inline-block bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent text-6xl md:text-8xl font-black tabular-nums">
+                <span className="inline-block bg-gradient-to-r from-sky-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent text-6xl md:text-8xl font-black tabular-nums">
                   {visitorNumber?.toLocaleString()}
                 </span>
                 <span className="text-3xl md:text-5xl ml-2">人目</span>
               </span>
               <span className="block mt-2">の訪問者です</span>
             </h1>
-            <p className="text-purple-200/60 text-sm md:text-base">
+            <p className="text-sky-200/60 text-sm md:text-base">
               QRコードをスキャンしていただきありがとうございます
+            </p>
+            <p className="text-sky-200/60 text-sm md:text-base">
+              この看板の広告効果を測定しています
             </p>
           </div>
 
@@ -112,10 +115,10 @@ export default function Home() {
                   📊 過去7日間の訪問統計
                 </h2>
                 <div className="text-right">
-                  <p className="text-purple-300 text-sm">累計訪問者数</p>
+                  <p className="text-sky-300 text-sm">累計訪問者数</p>
                   <p className="text-white text-2xl font-bold">
                     {stats.totalCount.toLocaleString()}
-                    <span className="text-purple-300 text-sm ml-1">人</span>
+                    <span className="text-sky-300 text-sm ml-1">人</span>
                   </p>
                 </div>
               </div>
@@ -126,12 +129,12 @@ export default function Home() {
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                     <XAxis
                       dataKey="date"
-                      tick={{ fill: "#a78bfa", fontSize: 12 }}
+                      tick={{ fill: "#60a5fa", fontSize: 12 }}
                       axisLine={{ stroke: "rgba(255,255,255,0.2)" }}
                       tickLine={{ stroke: "rgba(255,255,255,0.2)" }}
                     />
                     <YAxis
-                      tick={{ fill: "#a78bfa", fontSize: 12 }}
+                      tick={{ fill: "#60a5fa", fontSize: 12 }}
                       axisLine={{ stroke: "rgba(255,255,255,0.2)" }}
                       tickLine={{ stroke: "rgba(255,255,255,0.2)" }}
                       allowDecimals={false}
@@ -143,8 +146,8 @@ export default function Home() {
                         borderRadius: "12px",
                         boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
                       }}
-                      labelStyle={{ color: "#e9d5ff", fontWeight: "bold" }}
-                      itemStyle={{ color: "#c4b5fd" }}
+                      labelStyle={{ color: "#bfdbfe", fontWeight: "bold" }}
+                      itemStyle={{ color: "#93c5fd" }}
                       formatter={(value) => [`${value ?? 0}人`, "訪問者数"]}
                     />
                     <Bar
@@ -155,8 +158,8 @@ export default function Home() {
                     />
                     <defs>
                       <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#a78bfa" />
-                        <stop offset="100%" stopColor="#6366f1" />
+                        <stop offset="0%" stopColor="#60a5fa" />
+                        <stop offset="100%" stopColor="#3b82f6" />
                       </linearGradient>
                     </defs>
                   </BarChart>
@@ -166,8 +169,8 @@ export default function Home() {
           )}
 
           {/* フッター */}
-          <p className="text-center text-purple-300/40 text-xs mt-8">
-            Powered by QR Scan Logger
+          <p className="text-center text-sky-300/40 text-xs mt-8">
+            Powered by KakeruHirokami
           </p>
         </div>
       </div>
